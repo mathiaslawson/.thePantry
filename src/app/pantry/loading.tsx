@@ -1,11 +1,9 @@
-import { Box, CircularProgress } from "@mui/material";
+import React from 'react'
 
-const Loading = () => {
+function loading() {
   return (
-    <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
-      <CircularProgress />
-    </Box>
-  );
-};
+    <div>loading</div>
+  )
+}
 
-export default Loading;
+export default loading
