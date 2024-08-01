@@ -8,8 +8,9 @@ import Modal from '@mui/material/Modal';
 import { TextField } from '@mui/material';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import { addToFirestore } from '~/lib/firebaseServices';
+import { addToFirestore, getAllFromFirestore } from '~/lib/firebaseServices';
 import { v4 as uuidv4  } from 'uuid';
+
 
 const style = {
   position: 'absolute' as 'absolute',
@@ -33,6 +34,7 @@ interface ModalProps {
 export default function AddModal({open, handleClose}: ModalProps)  {
 
 
+
   const validationSchema = Yup.object({
     name: Yup.string().required('Name is required'),
     quantity: Yup.number().required('Password is required'),
@@ -46,8 +48,10 @@ export default function AddModal({open, handleClose}: ModalProps)  {
      }, 
      validationSchema: validationSchema,
      onSubmit: (values) => {
-      console.log(values);
+  
       addToFirestore({collectionName: 'pantry', data: values});
+      formik.resetForm();
+      handleClose()
       }
  
    })
