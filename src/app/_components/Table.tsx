@@ -63,7 +63,7 @@ export default function PantryTable() {
 
 // camera states
   const camera = React.useRef<CameraType>(null);
-  const [image, setImage] = React.useState<string | null>(null);
+  const [image, setImage] = React.useState<string | undefined>("");
   const [numberOfCameras, setNumberOfCameras] = React.useState(0);
   const [activeDeviceId, setActiveDeviceId] = React.useState<string | undefined>(undefined);
 

@@ -1,5 +1,5 @@
 import styles from "./page.module.css";
-import {Pantry} from "./pantry/page";
+import PantryPage from "./pantry/page";
 
 
 interface Pantry{
@@ -13,7 +13,7 @@ export default async function Home() {
 
   return (
     <main className={styles.main}>
-      <Pantry />
+      <PantryPage />
     </main>
   );
 }

@@ -1,39 +1,28 @@
 "use client";
-import React, { Suspense, useEffect } from "react";
+import React from "react";
 import styles from "../page.module.css";
-import { Box, Button } from "@mui/material";
+import { Box } from "@mui/material";
 import PantryTable from "../_components/Table";
-import AddButton from "../_components/AddButton";
-import AddModal from "../_components/Modal";
 
+// interface Pantry{
+//   name: string; 
+//   quantity: number;
+// }
 
-interface Pantry{
-  name: string; 
-  quantity: number;
-}
-
-
-export const Pantry =  () => {
-
-
-const [open, setOpen] = React.useState(false);
-const handleOpen = () => setOpen(true);
-const handleClose = () => setOpen(false);
-
-
-interface PantryItem {
- id: string;
-  name: string;
-  quantity: number;
-}
+const PantryPage = () => {
+  // interface PantryItem {
+  //  id: string;
+  //   name: string;
+  //   quantity: number;
+  // }
   return (
     <main>
-      
-      <Box className={styles.center} >
+      <Box className={styles.center}>
         <PantryTable />
       </Box>
-      <div className={styles.grid}>
-      </div>
+      <div className={styles.grid}></div>
     </main>
   );
-}
+};
+
+export default PantryPage;
