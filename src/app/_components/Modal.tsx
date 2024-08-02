@@ -59,7 +59,6 @@ export default function AddModal({open, handleClose}: ModalProps)  {
  
   return (
     <div>
-    
       <Modal
         open={open}
         onClose={handleClose}
