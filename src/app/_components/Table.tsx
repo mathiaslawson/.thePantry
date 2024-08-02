@@ -13,6 +13,7 @@ import * as Yup from 'yup';
 import { addToFirestore, getAllFromFirestore } from '~/lib/firebaseServices';
 import { v4 as uuidv4 } from 'uuid';
 import { Camera, CameraType } from 'react-camera-pro';
+import {pipeline} from '@xenova/transformers'
 
 const columns: GridColDef[] = [
   { field: 'name', headerName: 'Item Name', width: 400 },
@@ -69,6 +70,21 @@ export default function PantryTable() {
 
   // camera loading state
   const [loadingCamera, setLoadingCamera] = React.useState(false);
+
+
+  React.useEffect(()=>{
+    const showClassification = async () => {
+      const classifier = await pipeline('image-classification', 'Xenova/vit-base-patch16-224')
+    const url = 'https://huggingface.co/datasets/Xenova/transformers.js-docs/resolve/main/tiger.jpg';
+    const output = await classifier(url)
+
+    console.log(output, "this is the output")
+    }
+
+
+    showClassification()
+  })
+
  
 
 
