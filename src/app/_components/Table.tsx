@@ -72,20 +72,6 @@ export default function PantryTable() {
   const [loadingCamera, setLoadingCamera] = React.useState(false);
 
 
-  React.useEffect(()=>{
-    const showClassification = async () => {
-      const classifier = await pipeline('image-classification', 'Xenova/vit-base-patch16-224')
-    const url = 'https://huggingface.co/datasets/Xenova/transformers.js-docs/resolve/main/tiger.jpg';
-    const output = await classifier(url)
-
-    console.log(output, "this is the output")
-    }
-
-
-    showClassification()
-  })
-
- 
 
 
   const fetchPantryData = async () => {
@@ -130,6 +116,22 @@ export default function PantryTable() {
       }
     },
   });
+
+
+  React.useEffect(()=>{
+    const showClassification = async () => {
+      const classifier = await pipeline('image-classification', 'Xenova/vit-base-patch16-224')
+    const url = "https://utfs.io/f/d5fba840-7f8f-4bf3-ad2a-325c000fb7dc-smspf.png";
+    const output = await classifier(url)
+
+    console.log(output, "this is the output")
+    }
+
+
+    showClassification()
+  })
+
+ 
 
   return (
     <div style={{ height: 400, width: '900px' }}>
