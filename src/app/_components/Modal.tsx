@@ -43,11 +43,11 @@ export default function AddModal({open, handleClose}: ModalProps)  {
    const formik = useFormik({
      initialValues: {
        name: "", 
-       quantity: "", 
+       quantity: 0, 
        id: uuidv4()
      }, 
      validationSchema: validationSchema,
-     onSubmit: (values) => {
+     onSubmit: (values : { name: string, quantity: number, id: string}) => {
   
       addToFirestore({collectionName: 'pantry', data: values});
       formik.resetForm();

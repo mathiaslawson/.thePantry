@@ -15,6 +15,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Camera, CameraType } from 'react-camera-pro';
 import {pipeline} from '@xenova/transformers'
 
+
 const columns: GridColDef[] = [
   { field: 'name', headerName: 'Item Name', width: 400 },
   { field: 'quantity', headerName: 'Quantity', type: 'number', width: 100 },
@@ -68,8 +69,15 @@ export default function PantryTable() {
   const [activeDeviceId, setActiveDeviceId] = React.useState<string | undefined>(undefined);
 
 
+  interface ModelResultsInterface {
+    label: string;
+    confidence: number;
+  }
+
   // camera loading state
-  const [loadingCamera, setLoadingCamera] = React.useState(false);
+  const [modelLoading, setModelLoading] = React.useState(false);
+  const [resultsLoading, setResultsLoading] = React.useState<unknown | string>({});
+  const [modelResults, setModelResults] = React.useState<any>([]);
 
 
 
@@ -98,11 +106,11 @@ export default function PantryTable() {
   const formik = useFormik({
     initialValues: {
       name: "",
-      quantity: "",
+      quantity: 0,
       id: uuidv4(),
     },
     validationSchema: validationSchema,
-    onSubmit: async (values) => {
+    onSubmit: async (values : { name: string, quantity: number, id: string}) => {
       setLoading(true);
       try {
         await addToFirestore({ collectionName: 'pantry', data: values });
@@ -118,18 +126,56 @@ export default function PantryTable() {
   });
 
 
-  React.useEffect(()=>{
-    const showClassification = async () => {
-      const classifier = await pipeline('image-classification', 'Xenova/vit-base-patch16-224')
-    const url = "https://utfs.io/f/d5fba840-7f8f-4bf3-ad2a-325c000fb7dc-smspf.png";
-    const output = await classifier(url)
-
-    console.log(output, "this is the output")
-    }
-
-
-    showClassification()
+  const mlFormik = useFormik({
+    initialValues: {
+      name: modelResults?.label,
+      quantity: 0,
+      id: uuidv4(),
+    },
+    validationSchema: Yup.object({
+      quantity: Yup.number().required('Quantity is required'),
+    }),
+    onSubmit: async (values : { name: string, quantity: number, id: string}) => {
+       console.log(values)
+      setLoading(true);
+      try {
+        await addToFirestore({ collectionName: 'pantry', data: {...values, name: modelResults?.label} });  
+        mlFormik.resetForm();
+        handlePreviewClose();
+        await fetchPantryData(); 
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
+      }
+    
+     
+    },
   })
+
+
+  console.log(mlFormik.errors)
+
+
+  React.useEffect(()=>{
+      const showClassification = async () => {
+        setModelLoading(true)
+        const classifier = await pipeline('image-classification', 'Xenova/vit-base-patch16-224');
+      
+        const url: string = image ?? "https://t3.ftcdn.net/jpg/06/09/15/16/360_F_609151675_rzN9ZfjKTjMZf6Jq43eW3YWGZjWp3NhN.jpg";
+        const output: any = await classifier(url).then((res)=>{
+          setModelLoading(false);
+          console.log(res[0])
+          return res[0]
+        })
+
+      
+        setModelResults(output)
+      };
+  
+    
+      showClassification();
+    }, [image])
 
  
 
@@ -323,22 +369,87 @@ export default function PantryTable() {
           
         >
           <Box sx={style}>
-            {/* <Typography id="modal-modal-title" variant="h6" component="h2">
-             Use Camera to Scan Item
-            </Typography> */}
-
-        {/* process the image with model */}
-        {/* provide from ml  and feed to form */}
-        {/* provide field for quantity  */}
+         
        <div>
 
         <div style={{marginBottom: '10px'}}>
-          <p>This is the Image</p>
+          <h4>Item Preview</h4>
+          <hr />
+          <p style={{fontWeight: 'lighter', fontSize: '15px'}}>ML model anlyzes your your image and identifies what specific item you are trying to add to your pantry</p>
         </div>
 
       <div>
         <img src={image} alt="Preview" width={'330'} height={'180'} />
       </div>
+
+      
+     {
+      modelLoading
+       ? <div>Loading...</div> :
+      <div style={{marginTop: '15px'}}>
+        <h5>Pantry Item Captured: </h5>
+
+        <p>{modelResults?.label}</p>
+
+
+<form onSubmit={mlFormik.handleSubmit}>
+<div>
+ <p style={{fontWeight: 'lighter', fontSize: '15px', marginTop: '17px'}}>Is <b>{modelResults?.label}</b> the item you are trying to add to your pantry?</p>
+ </div>
+
+ <TextField
+                    id="quantity"
+                    name='quantity'
+                    label="Quantity"
+                    variant="outlined"
+                    type="number"
+                    value={mlFormik.values.quantity}
+                    onChange={mlFormik.handleChange}
+                    onBlur={mlFormik.handleBlur}
+                    error={mlFormik.touched.quantity && Boolean(mlFormik.errors.quantity)}
+                    helperText={mlFormik.touched.quantity && mlFormik.errors.quantity}
+                    style={{
+                      width: '100%',
+                      marginTop: '14px',
+                    }}
+                  /> 
+
+
+     
+          <Button style={{ backgroundColor: 'black', color: 'white' }} 
+          // onClick={()=> {   
+          //   handlePreviewClose()
+          //   handleCameraClose()
+          // }}
+          type='submit'
+        >Add Item</Button>
+       
+</form>
+       
+    
+
+ 
+
+
+ {/* if not id'ed, try again */}
+ <div>
+ <p style={{fontWeight: 'lighter', fontSize: '15px', marginTop: '17px'}}>Does this identity what your item is? If not, try again</p>
+ </div>
+        <div style={{marginTop: '10px'}}>
+          <Button style={{ backgroundColor: 'black', color: 'white' }} 
+          onClick={()=> {
+         
+            handlePreviewClose()
+            handleCameraClose()
+           
+          }}
+          >Try Again</Button>
+        </div>
+    
+      </div>
+
+      
+      }
 
        </div>
           </Box>
