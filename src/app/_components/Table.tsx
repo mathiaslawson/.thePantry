@@ -265,6 +265,7 @@ React.useEffect(() => {
     const showClassification = async () => {
       setModelLoading(true);
       try {
+        const {pipeline} = await import('@xenova/transformers')
         const classifier = await pipeline('image-classification', 'Xenova/vit-base-patch16-224');
         const url = image ?? "";
         const output = await classifier(url);
