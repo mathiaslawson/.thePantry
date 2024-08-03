@@ -157,26 +157,25 @@ export default function PantryTable() {
   console.log(mlFormik.errors)
 
 
-  React.useEffect(()=>{
-      const showClassification = async () => {
-        setModelLoading(true)
+React.useEffect(() => {
+    const showClassification = async () => {
+      setModelLoading(true);
+      try {
         const classifier = await pipeline('image-classification', 'Xenova/vit-base-patch16-224');
-      
-        const url: string = image ?? "https://t3.ftcdn.net/jpg/06/09/15/16/360_F_609151675_rzN9ZfjKTjMZf6Jq43eW3YWGZjWp3NhN.jpg";
-        const output: any = await classifier(url).then((res)=>{
-          setModelLoading(false);
-          console.log(res[0])
-          return res[0]
-        })
+        const url = image ?? "";
+        const output = await classifier(url);
+        
+        setModelLoading(false);
+        console.log(output[0]);
+        setModelResults(output[0]);
+      } catch (error) {
+        setModelLoading(false);
+        console.error('Error during classification:', error);
+      }
+    };
 
-      
-        setModelResults(output)
-      };
-  
-    
-      showClassification();
-    }, [image])
-
+    showClassification();
+  }, [image]);
  
 
   return (
