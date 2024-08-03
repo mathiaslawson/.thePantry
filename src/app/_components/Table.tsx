@@ -114,11 +114,13 @@ export default function PantryTable() {
   ];
 
 
-  const handleDelete = (item: {name: string, quantity: number, id: string}) => {
+  const handleDelete  = async(item: {name: string, quantity: number, id: string}) => {
     setLoading(true)
     deleteExistingItemFromFirestore({ collectionName: 'pantry', data: item }).then(()=>{
       setLoading(false)
+     
     });
+    await fetchPantryData(); 
   }
 
 
@@ -278,7 +280,25 @@ React.useEffect(() => {
 
     showClassification();
   }, [image]);
- 
+
+  const [searchTerm, setSearchTerm] = React.useState('');
+  const [searchResults, setSearchResults] = React.useState<PantryItem[]>([]);
+
+  React.useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      const filteredItems = data.filter(item =>
+        item.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setSearchResults(filteredItems);
+    }, 300);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchTerm, data]);
+
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(event.target.value);
+  };
+
 
   return (
     <div style={{ height: 400, width: '900px' }}>
@@ -299,22 +319,18 @@ React.useEffect(() => {
      <Box display={'flex'} justifyContent={'center'} marginBottom={3} width={'max-content'}>
      <form>
      <TextField
-                  id="name"
-                  name='name'
-                  label="Search Item"
-                  variant="outlined"
-                  type="text"
-                  value={formik.values.name}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  error={formik.touched.name && Boolean(formik.errors.name)}
-                  helperText={formik.touched.name && formik.errors.name}
-                  style={{
-                    width: '900px',
-                    marginTop: '14px',
-                  
-                  }}
-                />
+        id="name"
+        name="name"
+        label="Search Item"
+        variant="outlined"
+        type="text"
+        value={searchTerm}
+        onChange={handleSearchChange}
+        style={{
+          width: '900px',
+          marginTop: '14px',
+        }}
+      />
      </form>
      </Box>
 
@@ -325,7 +341,7 @@ React.useEffect(() => {
         </div>
       ) : (
         <DataGrid
-          rows={data}
+          rows={searchResults}
           columns={columns}
           initialState={{
             pagination: {

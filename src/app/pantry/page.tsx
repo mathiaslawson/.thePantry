@@ -3,6 +3,7 @@ import React from "react";
 import styles from "../page.module.css";
 import { Box } from "@mui/material";
 import PantryTable from "../_components/Table";
+import loading from '../../../public/images/board.png'
 
 // interface Pantry{
 //   name: string; 
@@ -17,10 +18,10 @@ const PantryPage = () => {
   // }
   return (
     <main>
-      <Box className={styles.center}>
+      <Box className={styles.main}>
         <PantryTable />
       </Box>
-      <div className={styles.grid}></div>
+     
     </main>
   );
 };
