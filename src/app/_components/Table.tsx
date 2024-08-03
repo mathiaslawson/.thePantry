@@ -10,20 +10,18 @@ import Modal from '@mui/material/Modal';
 import { TextField } from '@mui/material';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import { addToFirestore, getAllFromFirestore } from '~/lib/firebaseServices';
+import { addToFirestore, deleteExistingItemFromFirestore, getAllFromFirestore, updateExistingItemInFirestore } from '~/lib/firebaseServices';
 import { v4 as uuidv4 } from 'uuid';
 import { Camera, CameraType } from 'react-camera-pro';
 import {pipeline} from '@xenova/transformers'
+import './style.css'
+import { PenLine } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 
-
-const columns: GridColDef[] = [
-  { field: 'name', headerName: 'Item Name', width: 400 },
-  { field: 'quantity', headerName: 'Quantity', type: 'number', width: 100 },
-  { field: 'actions', headerName: 'Actions', width: 200 },
-];
 
 interface PantryItem {
-  id: string;
+ 
   name: string;
   quantity: number;
 }
@@ -49,6 +47,7 @@ export default function PantryTable() {
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
+
 
 
   // camera modal 
@@ -81,6 +80,67 @@ export default function PantryTable() {
 
 
 
+  // edit
+  const [edit, setEdit] = React.useState(false);
+  const [editItem, setEditItem] = React.useState<{name: string, quantity: number, id: string} | null>({
+    name: "",
+    quantity: 0,
+    id: ""
+  });
+
+  const columns: GridColDef[] = [
+    { field: 'name', headerName: 'Item Name', width: 400 },
+    { field: 'quantity', headerName: 'Quantity', type: 'number', width: 100 },
+    { 
+      field: 'actions', 
+      headerName: 'Actions', 
+      width: 360,
+      renderCell: (params) => (
+        <div>
+          <AddButton 
+           onClick={() => handleEditOpen(params.row as {name: string, quantity: number, id: string})}
+          > <PenLine strokeWidth={'0.5px'} size={'15px'} fill='white' color='black'/>Edit</AddButton>
+          <AddButton 
+          onClick={() => handleDelete(params.row as {name: string, quantity: number, id: string})}
+          >
+            <Trash2 strokeWidth={'0.5px'} size={'16px'} color='black'  fill='white'/>Delete
+          </AddButton>
+          <AddButton 
+          // onClick={() => handleDelete(params.row.id)}
+          ><Sparkles strokeWidth={'0.5px'} size={'15px'} fill='white' color='black' />Suggest AI</AddButton>
+        </div>
+      )
+    },
+  ];
+
+
+  const handleDelete = (item: {name: string, quantity: number, id: string}) => {
+    setLoading(true)
+    deleteExistingItemFromFirestore({ collectionName: 'pantry', data: item }).then(()=>{
+      setLoading(false)
+    });
+  }
+
+
+ 
+  React.useEffect(() => {
+     console.log(editItem, 'item from effect')
+  }, [editItem]);
+
+
+  // edit modal
+  const [isEdit, setIsEdit] = React.useState(false);
+  
+  const handleEditOpen = (item: {name: string, quantity: number, id: string}) => {
+    setEditItem(item)
+    setIsEdit(true)
+   
+  };
+  const handleEditClose = () => {
+    setIsEdit(false);
+    setEditItem(null)
+  };
+
 
   const fetchPantryData = async () => {
     setLoading(true);
@@ -103,16 +163,28 @@ export default function PantryTable() {
     quantity: Yup.number().required('Quantity is required'),
   });
 
+
+  const [name, setName] = React.useState("");
+  const [quantity, setQuantity] = React.useState(0);
+
+  React.useEffect(() => {
+    if (edit && editItem) {
+      setName(editItem.name);
+      setQuantity(editItem.quantity);
+    }
+  }, [edit, editItem]);
+
   const formik = useFormik({
     initialValues: {
       name: "",
-      quantity: 0,
-      id: uuidv4(),
+      quantity:  1,
+      // id: uuidv4(),
     },
     validationSchema: validationSchema,
-    onSubmit: async (values : { name: string, quantity: number, id: string}) => {
+    onSubmit: async (values : { name: string, quantity: number}) => {
       setLoading(true);
       try {
+        handleClose();
         await addToFirestore({ collectionName: 'pantry', data: values });
         formik.resetForm();
         handleClose();
@@ -122,6 +194,35 @@ export default function PantryTable() {
       } finally {
         setLoading(false);
       }
+
+    
+    },
+  });
+
+
+
+
+  const editformik = useFormik<{name: string, quantity: number, id: string}>({
+    initialValues: {
+     name: editItem?.name || "",
+     quantity:editItem?.quantity || 0,
+     id: editItem?.id || "",
+    },
+    enableReinitialize: true,
+    onSubmit: async (values : { name: string, quantity: number, id: string}) => {
+      setLoading(true);
+      try {
+        handleEditClose();
+        setEditItem(null)
+        await updateExistingItemInFirestore({ collectionName: 'pantry', data: values });
+        formik.resetForm();
+       
+        await fetchPantryData(); 
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
+      }    
     },
   });
 
@@ -129,19 +230,20 @@ export default function PantryTable() {
   const mlFormik = useFormik({
     initialValues: {
       name: modelResults?.label,
-      quantity: 0,
-      id: uuidv4(),
+      quantity: 1,
+      // id: uuidv4(),
     },
     validationSchema: Yup.object({
       quantity: Yup.number().required('Quantity is required'),
     }),
-    onSubmit: async (values : { name: string, quantity: number, id: string}) => {
+    onSubmit: async (values : { name: string, quantity: number}) => {
        console.log(values)
       setLoading(true);
       try {
+        handlePreviewClose();
         await addToFirestore({ collectionName: 'pantry', data: {...values, name: modelResults?.label} });  
         mlFormik.resetForm();
-        handlePreviewClose();
+       
         await fetchPantryData(); 
       } catch (e) {
         console.error(e);
@@ -218,7 +320,9 @@ React.useEffect(() => {
 
 
       {loading ? (
-        <div>Loading...</div>
+        <div style={{display: 'flex', justifyContent: 'center'}}>
+        <div className="lds-roller"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
+        </div>
       ) : (
         <DataGrid
           rows={data}
@@ -229,10 +333,11 @@ React.useEffect(() => {
             },
           }}
           pageSizeOptions={[5, 10]}
-          checkboxSelection
+          // checkboxSelection
+          
         />
       )}
-
+{/* add modal */}
       <div>
         <Modal
           open={open}
@@ -242,7 +347,7 @@ React.useEffect(() => {
         >
           <Box sx={style}>
             <Typography id="modal-modal-title" variant="h6" component="h2">
-              Add new Pantry Item
+             Add Pantry Item
             </Typography>
 
             <div>
@@ -286,6 +391,69 @@ React.useEffect(() => {
                 <Box marginTop={3}>
                   <Button style={{ backgroundColor: 'black', color: 'white' }} type='submit'>
                     Add
+                  </Button>
+                </Box>
+              </form>
+            </div>
+          </Box>
+        </Modal>
+      </div>
+
+
+      {/* edit model */}
+      <div>
+        <Modal
+          open={isEdit}
+          onClose={handleEditClose}
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
+        >
+          <Box sx={style}>
+            <Typography id="modal-modal-title" variant="h6" component="h2">
+             Update Pantry Item
+            </Typography>
+
+            <div>
+              <form onSubmit={editformik.handleSubmit}>
+                <TextField
+                  id="name"
+                  name='name'
+                  label="Item Name"
+                  variant="outlined"
+                  type="text"
+                  value={editformik.values.name}
+                  onChange={editformik.handleChange}
+                  onBlur={editformik.handleBlur}
+                  error={editformik.touched.name && Boolean(editformik.errors.name)}
+                  helperText={editformik.touched.name && editformik.errors.name}
+                  style={{
+                    width: '100%',
+                    marginTop: '14px',
+                  }}
+                />
+
+                <div>
+                  <TextField
+                    id="quantity"
+                    name='quantity'
+                    label="Quantity"
+                    variant="outlined"
+                    type="number"
+                    value={editformik.values.quantity}
+                    onChange={editformik.handleChange}
+                    onBlur={editformik.handleBlur}
+                    error={editformik.touched.quantity && Boolean(editformik.errors.quantity)}
+                    helperText={editformik.touched.quantity && editformik.errors.quantity}
+                    style={{
+                      width: '100%',
+                      marginTop: '14px',
+                    }}
+                  />
+                </div>
+
+                <Box marginTop={3}>
+                  <Button style={{ backgroundColor: 'black', color: 'white' }} type='submit'>
+                    Update
                   </Button>
                 </Box>
               </form>
