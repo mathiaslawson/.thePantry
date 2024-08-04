@@ -18,6 +18,8 @@ import './style.css'
 import { PenLine } from 'lucide-react';
 import { Trash2 } from 'lucide-react';
 import { Sparkles } from 'lucide-react';
+import { OpenAIError } from 'openai';
+import openAI from '~/lib/openAI';
 
 
 interface PantryItem {
@@ -105,9 +107,9 @@ export default function PantryTable() {
           >
             <Trash2 strokeWidth={'0.5px'} size={'16px'} color='black'  fill='white'/>Delete
           </AddButton>
-          <AddButton 
-          // onClick={() => handleDelete(params.row.id)}
-          ><Sparkles strokeWidth={'0.5px'} size={'15px'} fill='white' color='black' />Suggest AI</AddButton>
+          {/* <AddButton 
+          onClick={() => handleDelete(params.row.id)}
+          ><Sparkles strokeWidth={'0.5px'} size={'15px'} fill='white' color='black' />Suggest AI</AddButton> */}
         </div>
       )
     },
@@ -124,10 +126,6 @@ export default function PantryTable() {
   }
 
 
- 
-  React.useEffect(() => {
-     console.log(editItem, 'item from effect')
-  }, [editItem]);
 
 
   // edit modal
@@ -258,8 +256,6 @@ export default function PantryTable() {
   })
 
 
-  console.log(mlFormik.errors)
-
 
 React.useEffect(() => {
     const showClassification = async () => {
@@ -271,7 +267,7 @@ React.useEffect(() => {
         const output = await classifier(url);
         
         setModelLoading(false);
-        console.log(output[0]);
+        // console.log(output[0]);
         setModelResults(output[0]);
       } catch (error) {
         setModelLoading(false);
@@ -281,6 +277,27 @@ React.useEffect(() => {
 
     showClassification();
   }, [image]);
+
+
+  async function fetchWeather() {
+    const response = await fetch('/api/recepie', {
+      method: 'POST',
+    });
+  
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+  
+    const data = await response.json();
+    // console.log(data, 'llama data');
+  }
+  
+  // Call the function to fetch weather data
+  fetchWeather().catch((error) => {
+    console.error('Error fetching weather data:', error);
+  });
+
+
 
   const [searchTerm, setSearchTerm] = React.useState('');
   const [searchResults, setSearchResults] = React.useState<PantryItem[]>([]);
@@ -509,7 +526,7 @@ React.useEffect(() => {
               canvas: 'Canvas is not supported.',
           }}
           videoReadyCallback={() => {
-            console.log('Video feed ready.');
+            // console.log('Video feed ready.');
           }}
            />
         </div>

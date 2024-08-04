@@ -17,9 +17,7 @@ export default async function Home() {
 
   return (
     <main className={""} style={{height: '100vh'}}>
-      <div style={{paddingTop: '50px'}}>
-      <Navbar />
-      </div>
+     
      
 
       <div style={{display: 'flex', justifyContent: 'center'}}>
@@ -48,7 +46,7 @@ export default async function Home() {
          <li style={{display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px'}}><Hexagon strokeWidth={'0.5px'} size={'15px'} fill='white' color='black' />Update Items in Pantry</li>
         <li style={{display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px'}}><Hexagon strokeWidth={'0.5px'} size={'15px'} fill='white' color='black' />Delete Items from Pantry</li>
         <li style={{display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px'}}><Hexagon strokeWidth={'0.5px'} size={'15px'} fill='white' color='black' />Search for Items In Pantry</li>
-        <li style={{display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px'}}><Hexagon strokeWidth={'0.5px'} size={'15px'} fill='white' color='black' />Recieve Recepie Suggestions based on the Items in Pantry</li>
+        {/* <li style={{display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px'}}><Hexagon strokeWidth={'0.5px'} size={'15px'} fill='white' color='black' />Recieve Recepie Suggestions based on the Items in Pantry</li> */}
        </ul>
       </div>
     </main>
