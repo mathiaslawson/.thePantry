@@ -279,23 +279,23 @@ React.useEffect(() => {
   }, [image]);
 
 
-  async function fetchWeather() {
-    const response = await fetch('/api/recepie', {
-      method: 'POST',
-    });
+  // async function fetchWeather() {
+  //   const response = await fetch('/api/recepie', {
+  //     method: 'POST',
+  //   });
   
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
-    }
+  //   if (!response.ok) {
+  //     throw new Error('Network response was not ok');
+  //   }
   
-    const data = await response.json();
-    // console.log(data, 'llama data');
-  }
+  //   const data = await response.json();
+  //   // console.log(data, 'llama data');
+  // }
   
-  // Call the function to fetch weather data
-  fetchWeather().catch((error) => {
-    console.error('Error fetching weather data:', error);
-  });
+  // // Call the function to fetch weather data
+  // fetchWeather().catch((error) => {
+  //   console.error('Error fetching weather data:', error);
+  // });
 
 
 

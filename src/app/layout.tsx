@@ -3,7 +3,12 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Navbar from "./_components/navbar";
 import Script from "next/script";
-import { CSPostHogProvider } from './provider'
+import { PHProvider } from './provider'
+import dynamic from 'next/dynamic'
+
+const PostHogPageView = dynamic(() => import('./PostHogPageView'), {
+  ssr: false,
+})
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -19,14 +24,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-       <CSPostHogProvider>
+       <PHProvider>
       <body className={inter.className}>
       <div style={{paddingTop: '50px'}}>
       <Navbar />
       </div>
+      <PostHogPageView /> 
         {children}
         </body>
-        </CSPostHogProvider>
+        </PHProvider>
     </html>
   );
 }
