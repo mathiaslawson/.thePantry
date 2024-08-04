@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Navbar from "./_components/navbar";
-
+import Script from "next/script";
+import { CSPostHogProvider } from './provider'
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,12 +19,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+       <CSPostHogProvider>
       <body className={inter.className}>
       <div style={{paddingTop: '50px'}}>
       <Navbar />
       </div>
         {children}
         </body>
+        </CSPostHogProvider>
     </html>
   );
 }
