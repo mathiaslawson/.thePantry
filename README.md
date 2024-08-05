@@ -1,4 +1,5 @@
 🛒 .thePantry 🛒
+A simple AI powered pantry inventory system
 
 ## Features
 
@@ -9,11 +10,11 @@
 
 ## Tech Stack
 
-- **Next.js 14 with TypeScript:** Robust framework for building scalable and maintainable web applications.
-- **PostHog:** Powerful analytics to track user interactions and improve the user experience.
-- **Firebase:** Reliable backend infrastructure for real-time database and authentication.
-- **Vercel:** Streamlined CI/CD process for continuous deployment and effortless scaling.
-- **Material UI:** Modern and responsive UI components for a sleek and user-friendly interface.
+- **Next.js 14 with TypeScript**
+- **PostHog** 
+- **Firebase**
+- **Vercel**
+- **Material UI** 
 
 ## Installation Guide
 
