@@ -22,7 +22,7 @@ Follow these steps to set up the AI-powered pantry application locally:
 
 1. **Clone the repository:**
     ```bash
-    git clone [[Link to your repo]](https://github.com/mathiaslawson/.thePantry.git)
+    git clone https://github.com/mathiaslawson/.thePantry.git
     cd .thePantry
     ```
 
